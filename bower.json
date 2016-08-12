@@ -5,7 +5,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "oc-product-api": "git://github.com/oc-elements/oc-product-api#1.x",
-    "oc-product-tag": "git://github.com/oc-elements/oc-product-tags-edit#1.x",
+    "oc-product-tags-edit": "git://github.com/oc-elements/oc-product-tags-edit#1.x",
     "oc-product-tag-api": "git://github.com/oc-elements/oc-product-tag-api#1.x"
   },
   "devDependencies": {

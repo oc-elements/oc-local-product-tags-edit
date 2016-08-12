@@ -8,7 +8,7 @@
 `oc-local-product-tags-edit`
 Element to edit local product tags
 
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="oc-local-product-tags-edit">
@@ -22,7 +22,8 @@ Element to edit local product tags
     <oc-product-api id="prodApi"></oc-product-api>
     <oc-product-tag-api id="tagsApi"></oc-product-tag-api>
 
-    <h2>Hello [[prop1]]</h2>
+    <oc-product-tags-edit product-tags="[[productTags]]" menu-tags="[[menuTags]]" all-product-tags="[[allProductTags]]"></oc-product-tags-edit>
+
   </template>
 
   <script>
@@ -32,10 +33,70 @@ Element to edit local product tags
 
       properties: {
         prop1: {
-          type: String,
-          value: 'oc-local-product-tags-edit',
+          organisationId: Number,
+          productId : Number,
+          product: Object,
+          productTags : {
+            type: Array,
+            value: function(){
+              return [];
+            }
+          },
+          allProductTags : {
+            type: Array,
+            value: function(){
+              return [];
+            }
+          },
+          menuTags : {
+            type: Array,
+            value: function(){
+              return [];
+            }
+          },
         },
+
+
       },
+
+      listeners : {
+        "product-tags-updated" : "_updateTagHandler"
+      },
+
+      observers: [
+
+      ],
+
+      _updateTagHandler : function(e){
+        var tempObj = {};
+
+        tempObj.name = this.product.name;
+        tempObj.shortDescription = this.product.shortDescription;
+        tempObj.enabled = this.product.enabled;
+        tempObj.extraSets = this.product.extraSets;
+        tempObj.optionSets = this.product.optionSets;
+        tempObj.price = this.product.price;
+        tempObj.productType = this.product.productType;
+        tempObj.available = this.product.available;
+        tempObj.brandName = this.product.brandName;
+        tempObj.additionalInfo = this.product.additionalInfo;
+        tempObj.attributes = this.product.attributes;
+        tempObj.description = this.product.description;
+        tempObj.availableOnline = this.product.availableOnline;
+
+        tempObj.tags = e.detail;
+
+
+        this.$.prodApi.updateProduct(this.productId, tempObj)
+      },
+
+      getAllProductTags : function(){
+        return this.$.tagsApi.getTags("products", {pageSize: -1, showDisabled: true})
+      },
+
+      getAllMenuTags : function(){
+        return this.$.tagsApi.getTags("menu", {pageSize: -1, showDisabled: true})
+      }
 
     });
   </script>
