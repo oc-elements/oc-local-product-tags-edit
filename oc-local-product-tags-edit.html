@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../oc-product-api/oc-product-api.html">
+<link rel="import" href="../oc-product-tag-api/oc-product-tag-api.html">
 
 <!--
 `oc-local-product-tags-edit`
@@ -14,6 +16,10 @@ Element to edit local product tags
         display: block;
       }
     </style>
+
+    <oc-product-api id="prodApi"></oc-product-api>
+    <oc-product-tag-api id="tagsApi"></oc-product-tag-api>
+
     <h2>Hello [[prop1]]</h2>
   </template>
 

@@ -3,7 +3,9 @@
   "description": "Element to edit local product tags",
   "main": "oc-local-product-tags-edit.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0"
+    "polymer": "Polymer/polymer#^1.4.0",
+    "oc-product-api": "git://github.com/oc-elements/oc-product-api#1.x",
+    "oc-product-tag-api": "git://github.com/oc-elements/oc-product-tag-api#1.x"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
