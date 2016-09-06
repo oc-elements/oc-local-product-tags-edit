@@ -22,7 +22,11 @@ Element to edit local product tags
     <oc-product-api id="prodApi"></oc-product-api>
     <oc-product-tag-api id="tagsApi"></oc-product-tag-api>
 
-    <oc-product-tags-edit product-tags="[[productTags]]" menu-tags="[[menuTags]]" all-product-tags="[[allProductTags]]"></oc-product-tags-edit>
+    <oc-product-tags-edit
+            product-tags="[[productTags]]"
+            all-product-tags="[[allProductTags]]"
+            menu-tags="[[menuTags]]"
+    ></oc-product-tags-edit>
 
   </template>
 
@@ -32,42 +36,58 @@ Element to edit local product tags
       is: 'oc-local-product-tags-edit',
 
       properties: {
-        prop1: {
-          organisationId: Number,
-          productId : Number,
-          product: Object,
-          productTags : {
-            type: Array,
-            value: function(){
-              return [];
-            }
-          },
-          allProductTags : {
-            type: Array,
-            value: function(){
-              return [];
-            }
-          },
-          menuTags : {
-            type: Array,
-            value: function(){
-              return [];
-            }
-          },
+        organisationId: Number,
+        productId : {
+          type: Number,
+          computed: "_computeProductId(product)"
         },
-
+        loading: {
+          type: Boolean,
+          notify: true
+        },
+        product: Object,
+        productTags : Array,
+        allProductTags : Array,
+        menuTags : Array
 
       },
 
       listeners : {
-        "product-tags-updated" : "_updateTagHandler"
+        "product-tags-updated" : "_updateTagHandler",
+        "tag-select" : "_selectTag",
+        "tag-remove" : "_removeTag",
       },
 
-      observers: [
-
+      observers : [
+        "refresh(product)",
       ],
 
+      refresh : function(){
+
+        if (!this.product) {
+          return
+        }
+
+        this.loading = true;
+
+        Promise.all([this.getAllProductTags(), this.getMenuTags()])
+                .then(function(request){
+
+                  this.productTags = this.product.tags;
+                  this.allProductTags = request[0].response.results;
+                  this.menuTags = request[1].response.results;
+
+                }.bind(this))
+                .catch(this.fire.bind(this, 'options_error', 'Could not load tags'))
+                .finally(this.set.bind(this, 'loading', false));
+      },
+
+      _computeProductId : function(product){
+        return product.id;
+      },
+
       _updateTagHandler : function(e){
+        this.loading = true;
         var tempObj = {};
 
         tempObj.name = this.product.name;
@@ -88,14 +108,41 @@ Element to edit local product tags
 
 
         this.$.prodApi.updateProduct(this.productId, tempObj)
+                .catch(this.fire.bind(this, 'options_error', 'Could not update tags'))
+                .finally(this.set.bind(this, 'loading', false));
       },
 
       getAllProductTags : function(){
-        return this.$.tagsApi.getTags("products", {pageSize: -1, showDisabled: true})
+        return this._getTags('products')
       },
 
-      getAllMenuTags : function(){
-        return this.$.tagsApi.getTags("menu", {pageSize: -1, showDisabled: true})
+      getMenuTags : function(){
+        return this._getTags('menu')
+      },
+
+      _getTags : function(type){
+        return this.$.tagsApi.getTags(type, {pageSize: -1, showDisabled: true})
+      },
+
+      _selectTag : function(e){
+        var selectedTag = e.detail,
+                selectedTagId = selectedTag.id,
+                selectedTagType = selectedTag.tagType.name,
+                productSelected = this.productTags.filter(function(tag){ return (tag.id === selectedTagId && tag.tagType.name === selectedTagType)})[0];
+        if(!productSelected) {
+          this.push('productTags', e.detail);
+        }
+      },
+
+      _removeTag : function(e){
+        var selectedTag = e.detail,
+                selectedTagId = selectedTag.id,
+                selectedTagType = selectedTag.tagType.name,
+                tagIdx = this.productTags.findIndex(function(tag){ return (tag.id === selectedTagId && tag.tagType.name === selectedTagType)})
+
+        if(tagIdx > -1) {
+          this.splice('productTags', tagIdx, 1);
+        }
       }
 
     });
