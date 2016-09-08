@@ -37,6 +37,7 @@ Element to edit local product tags
 
       properties: {
         organisationId: Number,
+        loaded: Boolean,
         productId : {
           type: Number,
           computed: "_computeProductId(product)"
@@ -64,7 +65,7 @@ Element to edit local product tags
 
       refresh : function(){
 
-        if (!this.product) {
+        if (!this.product || this.loaded) {
           return
         }
 
@@ -80,6 +81,8 @@ Element to edit local product tags
                 }.bind(this))
                 .catch(this.fire.bind(this, 'options_error', 'Could not load tags'))
                 .finally(this.set.bind(this, 'loading', false));
+
+        this.loaded = true;
       },
 
       _computeProductId : function(product){
